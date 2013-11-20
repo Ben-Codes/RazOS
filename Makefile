@@ -1,6 +1,6 @@
 ###############################################################################
 #	makefile
-#	 by originally written by: Alex Chadwick
+#	 by originally written by Alex Chadwick
 #
 #	A makefile script for generation of raspberry pi kernel images.
 ###############################################################################
