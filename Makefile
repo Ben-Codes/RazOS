@@ -1,33 +1,62 @@
-CC = arm-elf-gcc
-AS = arm-elf-as
+###############################################################################
+#	makefile
+#	 by originally written by: Alex Chadwick
+#
+#	A makefile script for generation of raspberry pi kernel images.
+###############################################################################
 
+ARMGNU ?= arm-none-eabi
 
-ASM.FILES ASM.FILES += cstartup.S
+# The intermediate directory for compiled object files.
+BUILD = build/
 
+# The directory in which source files are stored.
+SOURCE = _init/
 
-ASM.FLAGS += -gstabs
+# The name of the output file to generate.
+TARGET = kernel.img
 
-C.FILES = main.c
+# The name of the assembler listing file to generate.
+LIST = kernel.list
 
-C.FLAGS +C.FLAGS += -c
-C.FLAGS += -g
+# The name of the map file to generate.
+MAP = kernel.map
 
-L.FLAGS L.FLAGS += -nostartfiles
-L.FLAGS += -Wl,-Map=mapfile.map
-L.FLAGS += -Wl,--script=my_linker_script
-L.FLAGS += -Wl,-cref
+# The name of the linker script to use.
+LINKER = kernel.ld
 
-OBJ OBJ += $(patsubst %.S,%.o,$(ASM.FILES))
-OBJ += $(patsubst %.c,%.o,$(C.FILES))
+# The names of all object files that must be generated. Deduced from the 
+# assembly code files in source.
+OBJECTS := $(patsubst $(SOURCE)%.s,$(BUILD)%.o,$(wildcard $(SOURCE)*.s))
 
+# Rule to make everything.
+all: $(TARGET) $(LIST)
 
-%.o : %.S  makefile
-         $(AS) $(INC) $(ASM.FLAGS) $< -o $@
+# Rule to remake everything. Does not include clean.
+rebuild: all
 
-%.o : %.c  makefile
-         $(CC) $(INC) $(C.FLAGS) $< -o $@
+# Rule to make the listing file.
+$(LIST) : $(BUILD)output.elf
+	$(ARMGNU)-objdump -d $(BUILD)output.elf > $(LIST)
 
-all: $(OBJ)
+# Rule to make the image file.
+$(TARGET) : $(BUILD)output.elf
+	$(ARMGNU)-objcopy $(BUILD)output.elf -O binary $(TARGET) 
 
-exec: $(OBJ)	
-         $(CC) $(L.FLAGS) $(OBJ) -o main.elf
+# Rule to make the elf file.
+$(BUILD)output.elf : $(OBJECTS) $(LINKER)
+	$(ARMGNU)-ld --no-undefined $(OBJECTS) -Map $(MAP) -o $(BUILD)output.elf -T $(LINKER)
+
+# Rule to make the object files.
+$(BUILD)%.o: $(SOURCE)%.s $(BUILD)
+	$(ARMGNU)-as -I $(SOURCE) $< -o $@
+
+$(BUILD):
+	mkdir $@
+
+# Rule to clean files.
+clean : 
+	-rm -rf $(BUILD)
+	-rm -f $(TARGET)
+	-rm -f $(LIST)
+	-rm -f $(MAP)
