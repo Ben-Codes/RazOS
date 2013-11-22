@@ -1,4 +1,3 @@
-
 ;@-------------------------------------------------------------------------
 ;@-------------------------------------------------------------------------
 ;@--- Startup proccess for RazOS, also where simple type conversion
@@ -30,7 +29,7 @@ fiq_handler:        .word hang
 reset:
 
  ;@Need to clear registers in each CPU mode first
- 
+ ;@ and setup interupt registers 
  
  hang: 
    b hang
