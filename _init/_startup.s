@@ -1,4 +1,9 @@
 
+;@-------------------------------------------------------------------------
+;@-------------------------------------------------------------------------
+;@--- Startup proccess for RazOS, also where simple type conversion
+;@--- fuctions will be placed
+;@-------------------------------------------------------------------------
 
 .globl _start
 ;@ Begin with vectors table to hardware interupts
