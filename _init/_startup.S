@@ -1,2 +1,0 @@
-/* Linker Script Todo
-   Startup will be assembler */
