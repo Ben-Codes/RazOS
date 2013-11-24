@@ -40,7 +40,7 @@ int kernal_init(void)
 //////
 //Called via vector table on hardware
 //interupt
-irq_event_handler ( void )
+void irq_event_handler ( void )
 {
 	irq_counter++;
 }

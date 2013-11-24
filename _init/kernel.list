@@ -1,0 +1,145 @@
+
+build/output.elf:     file format elf32-littlearm
+
+Disassembly of section .text:
+
+00008000 <InitialiseFrameBuffer>:
+    8000:	e3500a01 	cmp	r0, #4096	; 0x1000
+    8004:	93510a01 	cmpls	r1, #4096	; 0x1000
+    8008:	93520020 	cmpls	r2, #32	; 0x20
+    800c:	83a00000 	movhi	r0, #0	; 0x0
+    8010:	81a0f00e 	movhi	pc, lr
+    8014:	e92d4010 	push	{r4, lr}
+    8018:	e59f4018 	ldr	r4, [pc, #24]	; 8038 <InitialiseFrameBuffer+0x38>
+    801c:	e5840000 	str	r0, [r4]
+    8020:	e5841004 	str	r1, [r4, #4]
+    8024:	e5840008 	str	r0, [r4, #8]
+    8028:	e584100c 	str	r1, [r4, #12]
+    802c:	e584100c 	str	r1, [r4, #12]
+    8030:	e1a00004 	mov	r0, r4
+    8034:	e8bd8010 	pop	{r4, pc}
+    8038:	00008190 	.word	0x00008190
+
+0000803c <MailboxBase>:
+    803c:	e59f0064 	ldr	r0, [pc, #100]	; 80a8 <readpolling$+0x24>
+    8040:	e1a0f00e 	mov	pc, lr
+
+00008044 <MailboxWrite>:
+    8044:	e310000f 	tst	r0, #15	; 0xf
+    8048:	11a0f00e 	movne	pc, lr
+    804c:	e351000f 	cmp	r1, #15	; 0xf
+    8050:	81a0f00e 	movhi	pc, lr
+    8054:	e1a02000 	mov	r2, r0
+    8058:	e92d4000 	push	{lr}
+
+0000805c <writepolling$>:
+    805c:	e5903018 	ldr	r3, [r0, #24]
+    8060:	e3130102 	tst	r3, #-2147483648	; 0x80000000
+    8064:	1afffffc 	bne	805c <writepolling$>
+    8068:	e0822001 	add	r2, r2, r1
+    806c:	e5802020 	str	r2, [r0, #32]
+    8070:	e8bd8000 	pop	{pc}
+
+00008074 <MailboxRead>:
+    8074:	e350000f 	cmp	r0, #15	; 0xf
+    8078:	81a0f00e 	movhi	pc, lr
+    807c:	e1a01000 	mov	r1, r0
+    8080:	e92d4000 	push	{lr}
+
+00008084 <readpolling$>:
+    8084:	e5902018 	ldr	r2, [r0, #24]
+    8088:	e3120101 	tst	r2, #1073741824	; 0x40000000
+    808c:	1afffffc 	bne	8084 <readpolling$>
+    8090:	e5902000 	ldr	r2, [r0]
+    8094:	e202300f 	and	r3, r2, #15	; 0xf
+    8098:	e1330001 	teq	r3, r1
+    809c:	1afffff8 	bne	8084 <readpolling$>
+    80a0:	e3c2000f 	bic	r0, r2, #15	; 0xf
+    80a4:	e8bd8000 	pop	{pc}
+    80a8:	2000b880 	.word	0x2000b880
+
+000080ac <_start>:
+    80ac:	e59ff018 	ldr	pc, [pc, #24]	; 80cc <reset_handler>
+    80b0:	e59ff018 	ldr	pc, [pc, #24]	; 80d0 <undefined_handler>
+    80b4:	e59ff018 	ldr	pc, [pc, #24]	; 80d4 <swi_handler>
+    80b8:	e59ff018 	ldr	pc, [pc, #24]	; 80d8 <prefetch_handler>
+    80bc:	e59ff018 	ldr	pc, [pc, #24]	; 80dc <data_handler>
+    80c0:	e59ff018 	ldr	pc, [pc, #24]	; 80e0 <unused_handler>
+    80c4:	e59ff018 	ldr	pc, [pc, #24]	; 80e4 <irq_handler>
+    80c8:	e59ff018 	ldr	pc, [pc, #24]	; 80e8 <fiq_handler>
+
+000080cc <reset_handler>:
+    80cc:	000080ec 	.word	0x000080ec
+
+000080d0 <undefined_handler>:
+    80d0:	00008108 	.word	0x00008108
+
+000080d4 <swi_handler>:
+    80d4:	00008108 	.word	0x00008108
+
+000080d8 <prefetch_handler>:
+    80d8:	00008108 	.word	0x00008108
+
+000080dc <data_handler>:
+    80dc:	00008108 	.word	0x00008108
+
+000080e0 <unused_handler>:
+    80e0:	00008108 	.word	0x00008108
+
+000080e4 <irq_handler>:
+    80e4:	0000811c 	.word	0x0000811c
+
+000080e8 <fiq_handler>:
+    80e8:	00008108 	.word	0x00008108
+
+000080ec <reset>:
+    80ec:	e3a00902 	mov	r0, #32768	; 0x8000
+    80f0:	e3a01000 	mov	r1, #0	; 0x0
+    80f4:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    80f8:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    80fc:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8100:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8104:	eb00000e 	bl	8144 <kernal_init>
+
+00008108 <hang>:
+    8108:	eafffffe 	b	8108 <hang>
+
+0000810c <GET32>:
+    810c:	e5900000 	ldr	r0, [r0]
+    8110:	e12fff1e 	bx	lr
+
+00008114 <PUT32>:
+    8114:	e5801000 	str	r1, [r0]
+    8118:	e12fff1e 	bx	lr
+
+0000811c <irq>:
+    811c:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+    8120:	eb000001 	bl	812c <irq_event_handler>
+    8124:	e8bd5fff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+    8128:	e25ef004 	subs	pc, lr, #4	; 0x4
+
+0000812c <irq_event_handler>:
+    812c:	e59f200c 	ldr	r2, [pc, #12]	; 8140 <irq_event_handler+0x14>
+    8130:	e5923000 	ldr	r3, [r2]
+    8134:	e2833001 	add	r3, r3, #1	; 0x1
+    8138:	e5823000 	str	r3, [r2]
+    813c:	e12fff1e 	bx	lr
+    8140:	000081c0 	.word	0x000081c0
+
+00008144 <kernal_init>:
+    8144:	e3a00242 	mov	r0, #536870916	; 0x20000004
+    8148:	e92d4010 	push	{r4, lr}
+    814c:	e2800602 	add	r0, r0, #2097152	; 0x200000
+    8150:	ebffffed 	bl	810c <GET32>
+    8154:	e3c04707 	bic	r4, r0, #1835008	; 0x1c0000
+    8158:	e3844701 	orr	r4, r4, #262144	; 0x40000
+    815c:	e3a00242 	mov	r0, #536870916	; 0x20000004
+    8160:	e2800602 	add	r0, r0, #2097152	; 0x200000
+    8164:	e1a01004 	mov	r1, r4
+    8168:	ebffffe9 	bl	8114 <PUT32>
+    816c:	e3a00202 	mov	r0, #536870912	; 0x20000000
+    8170:	e2800602 	add	r0, r0, #2097152	; 0x200000
+    8174:	e280001c 	add	r0, r0, #28	; 0x1c
+    8178:	e1a01004 	mov	r1, r4
+    817c:	ebffffe4 	bl	8114 <PUT32>
+    8180:	eafffffe 	b	8180 <kernal_init+0x3c>

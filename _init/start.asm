@@ -6,6 +6,7 @@
 ;@ This tells the linker that it should be first
 ;@ Credit for vector table info goes to David Welch
 ;@ github.com/dwelch67/raspberrypi
+;@ also provide the basic bare metal assembler calls
 ;@=============================================
 
 
@@ -21,14 +22,14 @@ _start:
 	ldr pc,irq_handler
 	ldr pc,fiq_handler
 	
-reset_handler:		.word reset
-undefined_handler:	.word hang
-swi_handler:		.word hang
-prefetch_handler:	.word hang
-data_handler:		.word hang
-unused_handler:		.word hang
-irq_handler:		.word irq
-fiq_handler:		.word hang
+reset_handler:      .word reset
+undefined_handler:  .word hang
+swi_handler:        .word hang
+prefetch_handler:   .word hang
+data_handler:       .word hang
+unused_handler:     .word hang
+irq_handler:        .word irq
+fiq_handler:        .word hang
 
 
 ;@ We must first copy the vector table to 0x0000
@@ -62,5 +63,4 @@ irq:
 	pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 	subs pc,lr,#4
 	
-	
-	
+

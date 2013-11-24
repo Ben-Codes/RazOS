@@ -1,0 +1,100 @@
+
+Allocating common symbols
+Common symbol       size              file
+
+irq_counter         0x4               build/kernal_init.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ram              0x00008000         0x00001000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD build/framebuffer.o
+LOAD build/mailbox.o
+LOAD build/start.o
+LOAD build/kernal_init.o
+
+.text           0x00008000      0x184
+ *(.text*)
+ .text          0x00008000       0x3c build/framebuffer.o
+                0x00008000                InitialiseFrameBuffer
+ .text          0x0000803c       0x70 build/mailbox.o
+                0x0000803c                MailboxBase
+                0x00008074                MailboxRead
+                0x00008044                MailboxWrite
+ .text          0x000080ac       0x80 build/start.o
+                0x0000810c                GET32
+                0x00008114                PUT32
+                0x000080ac                _start
+ .text          0x0000812c       0x58 build/kernal_init.o
+                0x0000812c                irq_event_handler
+                0x00008144                kernal_init
+
+.glue_7         0x00000000        0x0
+ .glue_7        0x00000000        0x0 build/framebuffer.o
+ .glue_7        0x00000000        0x0 build/mailbox.o
+ .glue_7        0x00000000        0x0 build/start.o
+ .glue_7        0x00000000        0x0 build/kernal_init.o
+
+.glue_7t        0x00000000        0x0
+ .glue_7t       0x00000000        0x0 build/framebuffer.o
+ .glue_7t       0x00000000        0x0 build/mailbox.o
+ .glue_7t       0x00000000        0x0 build/start.o
+ .glue_7t       0x00000000        0x0 build/kernal_init.o
+
+.vfp11_veneer   0x00000000        0x0
+ .vfp11_veneer  0x00000000        0x0 build/framebuffer.o
+ .vfp11_veneer  0x00000000        0x0 build/mailbox.o
+ .vfp11_veneer  0x00000000        0x0 build/start.o
+ .vfp11_veneer  0x00000000        0x0 build/kernal_init.o
+
+.janus_2cc_veneer
+                0x00000000        0x0
+ .janus_2cc_veneer
+                0x00000000        0x0 build/framebuffer.o
+ .janus_2cc_veneer
+                0x00000000        0x0 build/mailbox.o
+ .janus_2cc_veneer
+                0x00000000        0x0 build/start.o
+ .janus_2cc_veneer
+                0x00000000        0x0 build/kernal_init.o
+
+.v4_bx          0x00000000        0x0
+ .v4_bx         0x00000000        0x0 build/framebuffer.o
+ .v4_bx         0x00000000        0x0 build/mailbox.o
+ .v4_bx         0x00000000        0x0 build/start.o
+ .v4_bx         0x00000000        0x0 build/kernal_init.o
+
+.data           0x00000000        0x0
+ .data          0x00000000        0x0 build/framebuffer.o
+ .data          0x00000000        0x0 build/mailbox.o
+ .data          0x00000000        0x0 build/start.o
+ .data          0x00000000        0x0 build/kernal_init.o
+
+.bss            0x00008190       0x34
+ *(.bss*)
+ .bss           0x00008190       0x30 build/framebuffer.o
+                0x00008190                FrameBufferInfo
+ .bss           0x000081c0        0x0 build/mailbox.o
+ .bss           0x000081c0        0x0 build/start.o
+ .bss           0x000081c0        0x0 build/kernal_init.o
+ COMMON         0x000081c0        0x4 build/kernal_init.o
+                0x000081c0                irq_counter
+OUTPUT(build/output.elf elf32-littlearm)
+
+.ARM.attributes
+                0x00000000       0x22
+ .ARM.attributes
+                0x00000000       0x14 build/framebuffer.o
+ .ARM.attributes
+                0x00000014       0x14 build/mailbox.o
+ .ARM.attributes
+                0x00000028       0x14 build/start.o
+ .ARM.attributes
+                0x0000003c       0x2e build/kernal_init.o
+
+.comment        0x00000000       0x2a
+ .comment       0x00000000       0x2a build/kernal_init.o
