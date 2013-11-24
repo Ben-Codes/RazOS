@@ -2,7 +2,6 @@ RazOS
 =====
 
 An experimental Operating System for Raspberry Pi
-=====================================================
 
 Current State - Hardware Discovery and planning
 
