@@ -4,6 +4,7 @@
 #	Special Thanks to Alex Chadwick & David Welch
 #
 #	A makefile script for creating the test kernal, verfiying hardware quirks
+#	TODO: automate script items
 ###############################################################################
 
 ARMGNU ?= arm-none-eabi
@@ -36,8 +37,8 @@ clean :
 	rm -f *.bc
 	rm -f *.clange.opt.s
 	
-$(BUILD)start.o : _start.s
-	$(ARMGNU)-as _start.s -o $(BUILD)start.o
+$(BUILD)start.o : _start.asm
+	$(ARMGNU)-as _start.asm -o $(BUILD)start.o
 	
 $(BUILD)kernal_init.o : kernal_init.c
 	$(ARMGNU)-gcc $(CCMDS) -c kernal_init.c -o $(BUILD)kernal_init.o
