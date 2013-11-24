@@ -4,7 +4,7 @@
 #	Special Thanks to Alex Chadwick & David Welch
 #
 #	A makefile script for creating the test kernal, verfiying hardware quirks
-#	TODO: automate script items
+#	TODO: automate script items kinda dookie now
 ###############################################################################
 
 ARMGNU ?= arm-none-eabi
@@ -21,38 +21,54 @@ LINKER = linker.ld
 
 CCMDS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding
 
-gcc : $(TARGET) $(BUILD)output.hex
+LIST = kernel.list
 
-all : gcc
+# The names of all object files that must be generated. Deduced from the 
+# assembly code files in source.
+ASM_OBJECTS := $(patsubst %.asm,$(BUILD)%.o,$(wildcard *.asm))
+
+# The names of all object files that must be generated. Deduced from the 
+# assembly code files in source.
+C_OBJECTS := $(patsubst %.c,$(BUILD)%.o,$(wildcard *.c))
+
+# Rule to make everything.
+all: $(TARGET) $(LIST)
+
+# Rule to remake everything. Does not include clean.
+rebuild: all
 
 $(BUILD):
 	mkdir $@
-
-clean :
-	rm -f *.o
-	rm -f *.bin
-	rm -f *.hex
-	rm -f *.elf
-	rm -f *.list
-	rm -f *.bc
-	rm -f *.clange.opt.s
 	
-$(BUILD)start.o : _start.asm
-	$(ARMGNU)-as _start.asm -o $(BUILD)start.o
+# Rule to make the object files.
+$(BUILD)%.o: %.asm $(BUILD)
+	$(ARMGNU)-as $< -o $@
 	
-$(BUILD)kernal_init.o : kernal_init.c
-	$(ARMGNU)-gcc $(CCMDS) -c kernal_init.c -o $(BUILD)kernal_init.o
+$(BUILD)%.o: %.c $(BUILD)
+	$(ARMGNU)-gcc $(CCMDS) -c $< -o $@
 	
-$(BUILD)output.elf : $(BUILD)kernal_init.o $(BUILD)start.o $(LINKER)
-	$(ARMGNU)-ld --no-undefined $(BUILD)kernal_init.o $(BUILD)start.o -Map $(MAP) -o $(BUILD)output.elf -T $(LINKER)
+# Rule to make the elf file.
+$(BUILD)output.elf : $(ASM_OBJECTS) $(C_OBJECTS) $(LINKER)
+	$(ARMGNU)-ld --no-undefined $(ASM_OBJECTS) $(C_OBJECTS) -Map $(MAP) -o $(BUILD)output.elf -T $(LINKER)
 	
 # Rule to make the image file.
 $(TARGET) : $(BUILD)output.elf
 	$(ARMGNU)-objcopy $(BUILD)output.elf -O binary $(TARGET)
-	
+
+# Rule to make the hex file.
 $(BUILD)output.hex : $(BUILD)output.elf
 	$(ARMGNU)-objcopy $(BUILD)output.elf -O ihex $(BUILD)output.hex
-	
 
+# Rule to make the listing file.
+$(LIST) : $(BUILD)output.elf
+	$(ARMGNU)-objdump -d $(BUILD)output.elf > $(LIST)
 
+$(BUILD):
+	mkdir $@
 
+# Rule to clean files.
+clean : 
+	-rm -rf $(BUILD)
+	-rm -f $(TARGET)
+	-rm -f $(LIST)
+	-rm -f $(MAP)
