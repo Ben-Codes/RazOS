@@ -37,8 +37,7 @@ InitialiseFrameBuffer:
 	cmp width,#4096
 	cmpls height,#4096
 	cmpls bitDepth,#32
-	result .req r0
-	movhi result,#0 ;@ we return 0 if out of range
+	movhi r0,#0 ;@ we return 0 if out of range
 	movhi pc,lr
 	
 	fbInfoAddr .req r4
@@ -48,10 +47,24 @@ InitialiseFrameBuffer:
 	str height,[fbInfoAddr,#4]
 	str width,[fbInfoAddr,#8]
 	str height,[fbInfoAddr,#12]
-	str height,[fbInfoAddr,#12]
+	str bitDepth,[fbInfoAddr,#20]
 	.unreq width
 	.unreq height
 	.unreq bitDepth
 	
 	mov r0,fbInfoAddr
+	.unreq fbInfoAddr
 	pop {r4,pc}
+
+.globl GetGPU_Pointer
+GetGPU_Pointer:
+	fbInfoAddr .req r0
+	push {r2,lr}
+	ldr r2,[fbInfoAddr,#32]
+	.unreq fbInfoAddr
+	mov r0,r2
+	pop {r2,pc}
+	
+	
+	
+	

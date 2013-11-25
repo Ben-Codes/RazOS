@@ -1,3 +1,5 @@
+#include "framebuffer.h"
+#include "mailbox.h"
 
 #define ARMBASE 0x8000
 #define CS      0x20003000
@@ -13,29 +15,55 @@
 
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
-
+void setup_framebuffer();
 //-------------------------------------------------------------
 volatile unsigned int irq_counter;
 //-------------------------------------------------------------
 
+////////////////////////////////////////////
+//This is where we setup our first proccess
 int kernal_init(void)
 {
-	unsigned int ra;
-	unsigned int rb;
+	
+	//setup_framebuffer();
 
-	
-	ra=GET32(GPFSEL1);
-	ra &=~ (7<<18);
-	ra |= 1<<18;
-	
-	PUT32(GPFSEL1, ra);
-	PUT32(GPSET0, ra);
-	
-	rb = 0;
 	while(1){
-		rb++;
+		
 	}
+	
+	return 0;
 }
+
+void setup_framebuffer()
+{
+	int *framebufferAddress = InitialiseFrameBuffer(1024,768,16);
+	
+	MailboxWrite((int)(framebufferAddress + 0x40000000),1);
+	int results = MailboxRead(1);
+	
+	if( 0 == (results ^ 0))
+	{
+		int *gpuPointer = GetGPU_Pointer(framebufferAddress);
+		unsigned short color = 16;
+		int y = 768;
+		int x = 1024;
+		
+		while(y >= 0)
+		{
+			while(x >= 0)
+			{
+				*gpuPointer = color;
+				color = color + 2;
+				x--;
+			}
+			
+			color++;
+			y--;
+			x = 1024;
+		}
+		
+	}
+};
 
 //////
 //Called via vector table on hardware

@@ -9,5 +9,4 @@ SECTIONS
 	.init : { *(.init) } > ram
 	.text : { *(.text*) } > ram
 	.bss : { *(.bss*) } > ram
-
 }

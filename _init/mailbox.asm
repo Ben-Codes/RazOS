@@ -16,7 +16,6 @@
 MailboxBase:
 	ldr r0,=0x2000B880
 	mov pc,lr
-	
 
 	
 ;@Writes data into mailbox
