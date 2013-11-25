@@ -9,7 +9,7 @@
 ;@ also provide the basic bare metal assembler calls
 ;@=============================================
 
-
+.section .init
 .global _start
 _start:
 	;@ We start by declaring out interupt vector table
