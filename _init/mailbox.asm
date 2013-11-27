@@ -27,12 +27,13 @@ MailboxWrite:
 	movne pc,lr		;@ if the first four bits are not 0 return out
 	cmp r1,#15
 	movhi pc,lr		;@ if r1 has a value greater than 4bits no good
+	push {lr}
+	
 	
 	channel .req r1
 	value .req r2
 	mov value,r0	;@ move the value out of r0, we are about to use it
-	push {lr}
-	bl =MailboxBase	;@ Put the addressbase into r0
+	bl MailboxBase	;@ Put the addressbase into r0
 	mailbox .req r0
 	
 writepolling$:
@@ -57,11 +58,11 @@ writepolling$:
 MailboxRead:
 	cmp r0,#15	;@ make sure our value is only
 	movhi pc,lr
+	push {lr}
 	
 	channel .req r1
 	mov channel,r0 ;@ move our value out of r0 into our channel
-	push {lr}
-	bl =MailboxBase
+	bl MailboxBase
 	mailbox .req r0
 	
 rightmail$:
@@ -86,4 +87,4 @@ readpolling$:
 	and r0,mail,#0xfffffff0
 	.unreq mail
 	pop {pc}
-	
+

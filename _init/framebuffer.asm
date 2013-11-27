@@ -65,6 +65,12 @@ GetGPU_Pointer:
 	mov r0,r2
 	pop {r2,pc}
 	
+.globl FlagAddress
+FlagAddress:
+	add r0,#0x40000000
+	mov pc,lr
 	
-	
-	
+.globl StoreBuffer
+StoreBuffer:
+	add r0,#0x40000000
+	mov pc,lr

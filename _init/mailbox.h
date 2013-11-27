@@ -5,5 +5,4 @@
 //ID cannot be bigger than 15
 extern unsigned int MailboxWrite(unsigned int address,unsigned int mailBoxID);
 extern unsigned int MailboxRead(unsigned int mailBoxID);
-
 #endif

@@ -15,7 +15,8 @@
 
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
-void setup_framebuffer();
+extern void TurnOnLight(void);
+void setup_framebuffer(void);
 //-------------------------------------------------------------
 volatile unsigned int irq_counter;
 //-------------------------------------------------------------
@@ -24,8 +25,9 @@ volatile unsigned int irq_counter;
 //This is where we setup our first proccess
 int kernal_init(void)
 {
+
+	setup_framebuffer();
 	
-	//setup_framebuffer();
 
 	while(1){
 		
@@ -34,17 +36,24 @@ int kernal_init(void)
 	return 0;
 }
 
-void setup_framebuffer()
+void setup_framebuffer(void)
 {
-	int *framebufferAddress = InitialiseFrameBuffer(1024,768,16);
+	unsigned int newAddress;
+	unsigned int framebufferAddress;
 	
-	MailboxWrite((int)(framebufferAddress + 0x40000000),1);
+	framebufferAddress = InitialiseFrameBuffer(1024,768,16);
+	
+	
+	newAddress = FlagAddress(framebufferAddress);
+
+	MailboxWrite(newAddress,1);
 	int results = MailboxRead(1);
-	
-	if( 0 == (results ^ 0))
+		
+	if(results != 0)
 	{
-		int *gpuPointer = GetGPU_Pointer(framebufferAddress);
-		unsigned short color = 16;
+		
+		volatile unsigned short * gpuPointer = GetGPU_Pointer(framebufferAddress);
+		//unsigned short color = 16;
 		int y = 768;
 		int x = 1024;
 		
@@ -52,16 +61,16 @@ void setup_framebuffer()
 		{
 			while(x >= 0)
 			{
-				*gpuPointer = color;
-				color = color + 2;
+				*gpuPointer = 0x09C6;
+				//color = color + 2;
 				x--;
+				gpuPointer++;
 			}
 			
-			color++;
+			//color++;
 			y--;
 			x = 1024;
 		}
-		
 	}
 };
 
