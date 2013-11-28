@@ -12,9 +12,12 @@
 #define GPFSEL1 0x20200004
 #define GPSET0  0x2020001C
 #define GPCLR0	0x20200028
-
+//address,value
 extern void PUT32 ( unsigned int, unsigned int );
+extern void PUT16 ( unsigned int, unsigned short );
 extern unsigned int GET32 ( unsigned int );
+
+
 extern void TurnOnLight(void);
 void setup_framebuffer(void);
 //-------------------------------------------------------------
@@ -38,40 +41,26 @@ int kernal_init(void)
 
 void setup_framebuffer(void)
 {
-	unsigned int newAddress;
-	unsigned int framebufferAddress;
+	InitialiseFrameBuffer(1024,768,16);
 	
-	framebufferAddress = InitialiseFrameBuffer(1024,768,16);
+	unsigned int y = 0;
+	unsigned int x = 0;
 	
-	
-	newAddress = FlagAddress(framebufferAddress);
-
-	MailboxWrite(newAddress,1);
-	int results = MailboxRead(1);
-		
-	if(results != 0)
+	while(y <= 768)
 	{
 		
-		volatile unsigned short * gpuPointer = GetGPU_Pointer(framebufferAddress);
-		//unsigned short color = 16;
-		int y = 768;
-		int x = 1024;
-		
-		while(y >= 0)
+		while(x <= 1024)
 		{
-			while(x >= 0)
-			{
-				*gpuPointer = 0x09C6;
-				//color = color + 2;
-				x--;
-				gpuPointer++;
-			}
-			
-			//color++;
-			y--;
-			x = 1024;
+			WritePixel(x,y,0x0000);
+			x++;
 		}
+
+		y++;
+		x = 0;
 	}
+	
+	TurnOnLight();
+	
 };
 
 //////

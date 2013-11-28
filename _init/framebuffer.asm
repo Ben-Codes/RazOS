@@ -1,34 +1,64 @@
-;@----------------------------------------------
-;@----------------------------------------------
-;@-- Framebuffer library for RazOS
-;@----------------------------------------------
-;@ More info can be found here
-;@ http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/screen01.html
-;@=============================================
-;@ Provides basic interface to the mailbox system
-;@ Which is what is used to communicate with the GPU
-;@=============================================
-;@ Notes: May make this a driver in the future
-;@	so consider if pointers were virtual addresses
+/******************************************************************************
+*	frameBuffer.s
+*	 by Alex Chadwick
+*
+*	frameBuffer.s contains code that creates and manipulates the frame buffer.
+******************************************************************************/
 
 
-;@ start with the object the GPU will be expecting
-.section .bss
-.align 4
-.globl FrameBufferInfo
+.section .data
+.align 12
+.globl FrameBufferInfo 
 FrameBufferInfo:
-	.int 1024 ;@ Physical Width #0
-	.int 768  ;@ Physical Height #4
-	.int 1024 ;@ Virtual Width #8
-	.int 768  ;@ Virtual Height #12
-	.int 0	  ;@ GPU Pitch #16
-	.int 16	  ;@ Bit Depth #20
-	.int 0    ;@ X #24
-	.int 0 	  ;@ Y #28
-	.int 0	  ;@ GPU Pointer #32
-	.int 0 	  ;@ GPU Size #36
+	.int 1024	/* #0 Width */
+	.int 768	/* #4 Height */
+	.int 1024	/* #8 vWidth */
+	.int 768	/* #12 vHeight */
+	.int 0		/* #16 GPU - Pitch */
+	.int 16		/* #20 Bit Dpeth */
+	.int 0		/* #24 X */
+	.int 0		/* #28 Y */
+	.int 0		/* #32 GPU - Pointer */
+	.int 0		/* #36 GPU - Size */
 
 .section .text
+.global WritePixel
+WritePixel:
+	x .req r0
+	y .req r1
+	value .req r2
+	fbInfoAddr .req r5
+	
+	cmp y,#4096
+	cmpls x,#4096
+	result .req r0
+	movhi result,#0
+	movhi pc,lr
+	
+	push {r3,r4,r5,r6}
+	
+	ldr fbInfoAddr,=FrameBufferInfo
+	ldr r4,[fbInfoAddr,#0]
+	mla r6,y,r4,x
+	mov r3,#2
+	mul r4,r6,r3
+	
+	address .req r3
+	ldr address,[fbInfoAddr,#32]
+	add address,r4
+	strh value,[address]
+
+	pop {r3,r4,r5,r6}
+	mov pc,lr
+	.unreq address
+	.unreq fbInfoAddr
+	.unreq result
+	.unreq value
+	.unreq x
+	.unreq y
+
+
+
 .globl InitialiseFrameBuffer
 InitialiseFrameBuffer:
 	width .req r0
@@ -37,40 +67,37 @@ InitialiseFrameBuffer:
 	cmp width,#4096
 	cmpls height,#4096
 	cmpls bitDepth,#32
-	movhi r0,#0 ;@ we return 0 if out of range
+	result .req r0
+	movhi result,#0
 	movhi pc,lr
-	
-	fbInfoAddr .req r4
-	push {r4,lr}
+
+	push {r4,lr}	
+	fbInfoAddr .req r4		
 	ldr fbInfoAddr,=FrameBufferInfo
-	str width,[fbInfoAddr,#0]
-	str height,[fbInfoAddr,#4]
-	str width,[fbInfoAddr,#8]
-	str height,[fbInfoAddr,#12]
-	str bitDepth,[fbInfoAddr,#20]
+	str width,[r4,#0]
+	str height,[r4,#4]
+	str width,[r4,#8]
+	str height,[r4,#12]
+	str bitDepth,[r4,#20]
 	.unreq width
 	.unreq height
 	.unreq bitDepth
-	
-	mov r0,fbInfoAddr
-	.unreq fbInfoAddr
-	pop {r4,pc}
 
-.globl GetGPU_Pointer
-GetGPU_Pointer:
-	fbInfoAddr .req r0
-	push {r2,lr}
-	ldr r2,[fbInfoAddr,#32]
+	mov r0,fbInfoAddr
+	add r0,#0x40000000
+	mov r1,#1
+	bl MailboxWrite
+	
+	mov r0,#1
+	bl MailboxRead
+		
+	teq result,#0
+	movne result,#0
+	popne {r4,pc}
+
+	mov result,fbInfoAddr
+	pop {r4,pc}
+	.unreq result
 	.unreq fbInfoAddr
-	mov r0,r2
-	pop {r2,pc}
 	
-.globl FlagAddress
-FlagAddress:
-	add r0,#0x40000000
-	mov pc,lr
-	
-.globl StoreBuffer
-StoreBuffer:
-	add r0,#0x40000000
-	mov pc,lr
+
