@@ -1,90 +1,95 @@
-;@----------------------------------------------
-;@----------------------------------------------
-;@-- Mailbox library for RazOS
-;@----------------------------------------------
-;@ More info can be found here
-;@ http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/screen01.html
-;@=============================================
-;@ Provides basic interface to the mailbox system
-;@ Which is what is used to communicate with the GPU
-;@=============================================
-;@ Notes: May make this a driver in the future
-;@	so consider if pointers were virtual addresses
+/******************************************************************************
+*	mailbox.s
+*	 by Alex Chadwick
+*
+*	A sample assembly code implementation of the screen01 operating system.
+*	See main.s for details.
+*
+*	mailbox.s contains code that interacts with the mailbox for communication
+*	with various devices.
+******************************************************************************/
 
-;@Loads base address to the mailbox into mem
-.globl MailboxBase
-MailboxBase:
+/* NEW
+* GetMailboxBase returns the base address of the mailbox region as a physical
+* address in register r0.
+* C++ Signature: void* GetMailboxBase()
+*/
+.globl GetMailboxBase
+GetMailboxBase: 
 	ldr r0,=0x2000B880
 	mov pc,lr
 
-	
-;@Writes data into mailbox
-;@r0 is the message to send, 32 bits wide, first 4 must be 0000 
-;@r1 is the address, limited to 4 bits wide
+/* NEW
+* MailboxWrite writes the value given in the top 28 bits of r0 to the channel
+* given in the low 4 bits of r1.
+* C++ Signature: void MailboxWrite(u32 value, u8 channel)
+*/
 .globl MailboxWrite
-MailboxWrite:
+MailboxWrite: 
 	tst r0,#0b1111
-	movne pc,lr		;@ if the first four bits are not 0 return out
+	movne pc,lr
 	cmp r1,#15
-	movhi pc,lr		;@ if r1 has a value greater than 4bits no good
-	push {lr}
-	
-	
+	movhi pc,lr
+
 	channel .req r1
 	value .req r2
-	mov value,r0	;@ move the value out of r0, we are about to use it
-	bl MailboxBase	;@ Put the addressbase into r0
+	mov value,r0
+	push {lr}
+	bl GetMailboxBase
 	mailbox .req r0
-	
-writepolling$:
-	status .req r3
-	ldr status, [mailbox,#0x18] ;@ move up to the status reg and store it
-	
-	tst status,#0x80000000	;@checking top bit to see if its 1
-	.unreq status
-	bne writepolling$	;@ top bit wasnt 1 lets keep polling
-	
-	add value,channel ;@ merge the 4 bits of the channel to the value
+		
+	wait1$:
+		status .req r3
+		ldr status,[mailbox,#0x18]
+
+		tst status,#0x80000000
+		.unreq status
+		bne wait1$
+
+	add value,channel
 	.unreq channel
 	
-	str value,[mailbox,#0x20] ;@store the value into the send slot
+	str value,[mailbox,#0x20]
 	.unreq value
 	.unreq mailbox
 	pop {pc}
 
-;@ Reads specified mailbox
-;@ r0 is the channel to read
+/* NEW
+* MailboxRead returns the current value in the mailbox addressed to a channel
+* given in the low 4 bits of r0, as the top 28 bits of r0.
+* C++ Signature: u32 MailboxRead(u8 channel)
+*/
 .globl MailboxRead
-MailboxRead:
-	cmp r0,#15	;@ make sure our value is only
+MailboxRead: 
+	cmp r0,#15
 	movhi pc,lr
-	push {lr}
-	
+
 	channel .req r1
-	mov channel,r0 ;@ move our value out of r0 into our channel
-	bl MailboxBase
+	mov channel,r0
+	push {lr}
+	bl GetMailboxBase
 	mailbox .req r0
 	
-rightmail$:
-readpolling$:
-	status .req r2
-	ldr status,[mailbox,#0x18] ;@ Load register with status
-	tst status, #0x40000000
-	.unreq status
-	bne readpolling$
-	
-	mail .req r2
-	ldr mail,[mailbox,#0] ;@ Load mail into mailbox register
-	
-	inchan .req r3
-	and inchan,mail,#0b1111	;@ remove the top 28 bits and store in inchan
-	teq inchan,channel		;@ test those 4bits to see if its the right channel
-	.unreq inchan
-	bne rightmail$
+	rightmail$:
+		wait2$:
+			status .req r2
+			ldr status,[mailbox,#0x18]
+			
+			tst status,#0x40000000
+			.unreq status
+			bne wait2$
+		
+		mail .req r2
+		ldr mail,[mailbox,#0]
+
+		inchan .req r3
+		and inchan,mail,#0b1111
+		teq inchan,channel
+		.unreq inchan
+		bne rightmail$
 	.unreq mailbox
 	.unreq channel
-	
+
 	and r0,mail,#0xfffffff0
 	.unreq mail
 	pop {pc}
-

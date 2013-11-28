@@ -51,16 +51,13 @@ void setup_framebuffer(void)
 		
 		while(x <= 1024)
 		{
-			WritePixel(x,y,0x0000);
+			WritePixel(x,y,0x001F);
 			x++;
 		}
 
 		y++;
 		x = 0;
 	}
-	
-	TurnOnLight();
-	
 };
 
 //////
