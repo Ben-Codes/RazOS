@@ -1,0 +1,217 @@
+
+build/output.elf:     file format elf32-littlearm
+
+Disassembly of section .init:
+
+00008000 <_start>:
+    8000:	e59ff018 	ldr	pc, [pc, #24]	; 8020 <reset_handler>
+    8004:	e59ff018 	ldr	pc, [pc, #24]	; 8024 <undefined_handler>
+    8008:	e59ff018 	ldr	pc, [pc, #24]	; 8028 <swi_handler>
+    800c:	e59ff018 	ldr	pc, [pc, #24]	; 802c <prefetch_handler>
+    8010:	e59ff018 	ldr	pc, [pc, #24]	; 8030 <data_handler>
+    8014:	e59ff018 	ldr	pc, [pc, #24]	; 8034 <unused_handler>
+    8018:	e59ff018 	ldr	pc, [pc, #24]	; 8038 <irq_handler>
+    801c:	e59ff018 	ldr	pc, [pc, #24]	; 803c <fiq_handler>
+
+00008020 <reset_handler>:
+    8020:	00008178 	.word	0x00008178
+
+00008024 <undefined_handler>:
+    8024:	00008198 	.word	0x00008198
+
+00008028 <swi_handler>:
+    8028:	00008198 	.word	0x00008198
+
+0000802c <prefetch_handler>:
+    802c:	00008198 	.word	0x00008198
+
+00008030 <data_handler>:
+    8030:	00008198 	.word	0x00008198
+
+00008034 <unused_handler>:
+    8034:	00008198 	.word	0x00008198
+
+00008038 <irq_handler>:
+    8038:	000081dc 	.word	0x000081dc
+
+0000803c <fiq_handler>:
+    803c:	00008198 	.word	0x00008198
+Disassembly of section .text:
+
+00008040 <GetCharAddress>:
+    8040:	e350007f 	cmp	r0, #127	; 0x7f
+    8044:	83a00000 	movhi	r0, #0	; 0x0
+    8048:	81a0f00e 	movhi	pc, lr
+    804c:	e92d4002 	push	{r1, lr}
+    8050:	e59f1008 	ldr	r1, [pc, #8]	; 8060 <GetCharAddress+0x20>
+    8054:	e0811200 	add	r1, r1, r0, lsl #4
+    8058:	e1a00001 	mov	r0, r1
+    805c:	e8bd8002 	pop	{r1, pc}
+    8060:	00009000 	.word	0x00009000
+
+00008064 <WritePixel>:
+    8064:	e3510a01 	cmp	r1, #4096	; 0x1000
+    8068:	93500a01 	cmpls	r0, #4096	; 0x1000
+    806c:	83a00000 	movhi	r0, #0	; 0x0
+    8070:	81a0f00e 	movhi	pc, lr
+    8074:	e92d0078 	push	{r3, r4, r5, r6}
+    8078:	e59f507c 	ldr	r5, [pc, #124]	; 80fc <InitialiseFrameBuffer+0x5c>
+    807c:	e5954000 	ldr	r4, [r5]
+    8080:	e0260491 	mla	r6, r1, r4, r0
+    8084:	e3a03002 	mov	r3, #2	; 0x2
+    8088:	e0040396 	mul	r4, r6, r3
+    808c:	e5953020 	ldr	r3, [r5, #32]
+    8090:	e0833004 	add	r3, r3, r4
+    8094:	e1c320b0 	strh	r2, [r3]
+    8098:	e8bd0078 	pop	{r3, r4, r5, r6}
+    809c:	e1a0f00e 	mov	pc, lr
+
+000080a0 <InitialiseFrameBuffer>:
+    80a0:	e3500a01 	cmp	r0, #4096	; 0x1000
+    80a4:	93510a01 	cmpls	r1, #4096	; 0x1000
+    80a8:	93520020 	cmpls	r2, #32	; 0x20
+    80ac:	83a00000 	movhi	r0, #0	; 0x0
+    80b0:	81a0f00e 	movhi	pc, lr
+    80b4:	e92d4010 	push	{r4, lr}
+    80b8:	e59f403c 	ldr	r4, [pc, #60]	; 80fc <InitialiseFrameBuffer+0x5c>
+    80bc:	e5840000 	str	r0, [r4]
+    80c0:	e5841004 	str	r1, [r4, #4]
+    80c4:	e5840008 	str	r0, [r4, #8]
+    80c8:	e584100c 	str	r1, [r4, #12]
+    80cc:	e5842014 	str	r2, [r4, #20]
+    80d0:	e1a00004 	mov	r0, r4
+    80d4:	e2800101 	add	r0, r0, #1073741824	; 0x40000000
+    80d8:	e3a01001 	mov	r1, #1	; 0x1
+    80dc:	eb000009 	bl	8108 <MailboxWrite>
+    80e0:	e3a00001 	mov	r0, #1	; 0x1
+    80e4:	eb000014 	bl	813c <MailboxRead>
+    80e8:	e3300000 	teq	r0, #0	; 0x0
+    80ec:	13a00000 	movne	r0, #0	; 0x0
+    80f0:	18bd8010 	popne	{r4, pc}
+    80f4:	e1a00004 	mov	r0, r4
+    80f8:	e8bd8010 	pop	{r4, pc}
+    80fc:	0000a000 	.word	0x0000a000
+
+00008100 <GetMailboxBase>:
+    8100:	e59f006c 	ldr	r0, [pc, #108]	; 8174 <rightmail$+0x24>
+    8104:	e1a0f00e 	mov	pc, lr
+
+00008108 <MailboxWrite>:
+    8108:	e310000f 	tst	r0, #15	; 0xf
+    810c:	11a0f00e 	movne	pc, lr
+    8110:	e351000f 	cmp	r1, #15	; 0xf
+    8114:	81a0f00e 	movhi	pc, lr
+    8118:	e1a02000 	mov	r2, r0
+    811c:	e92d4000 	push	{lr}
+    8120:	ebfffff6 	bl	8100 <GetMailboxBase>
+
+00008124 <wait1$>:
+    8124:	e5903018 	ldr	r3, [r0, #24]
+    8128:	e3130102 	tst	r3, #-2147483648	; 0x80000000
+    812c:	1afffffc 	bne	8124 <wait1$>
+    8130:	e0822001 	add	r2, r2, r1
+    8134:	e5802020 	str	r2, [r0, #32]
+    8138:	e8bd8000 	pop	{pc}
+
+0000813c <MailboxRead>:
+    813c:	e350000f 	cmp	r0, #15	; 0xf
+    8140:	81a0f00e 	movhi	pc, lr
+    8144:	e1a01000 	mov	r1, r0
+    8148:	e92d4000 	push	{lr}
+    814c:	ebffffeb 	bl	8100 <GetMailboxBase>
+
+00008150 <rightmail$>:
+    8150:	e5902018 	ldr	r2, [r0, #24]
+    8154:	e3120101 	tst	r2, #1073741824	; 0x40000000
+    8158:	1afffffc 	bne	8150 <rightmail$>
+    815c:	e5902000 	ldr	r2, [r0]
+    8160:	e202300f 	and	r3, r2, #15	; 0xf
+    8164:	e1330001 	teq	r3, r1
+    8168:	1afffff8 	bne	8150 <rightmail$>
+    816c:	e3c2000f 	bic	r0, r2, #15	; 0xf
+    8170:	e8bd8000 	pop	{pc}
+    8174:	2000b880 	.word	0x2000b880
+
+00008178 <reset>:
+    8178:	e3a00902 	mov	r0, #32768	; 0x8000
+    817c:	e3a01000 	mov	r1, #0	; 0x0
+    8180:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8184:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8188:	e8b003fc 	ldm	r0!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    818c:	e8a103fc 	stmia	r1!, {r2, r3, r4, r5, r6, r7, r8, r9}
+    8190:	e3a0d902 	mov	sp, #32768	; 0x8000
+    8194:	eb000032 	bl	8264 <kernal_init>
+
+00008198 <hang>:
+    8198:	eafffffe 	b	8198 <hang>
+
+0000819c <GET32>:
+    819c:	e5900000 	ldr	r0, [r0]
+    81a0:	e12fff1e 	bx	lr
+
+000081a4 <PUT32>:
+    81a4:	e5801000 	str	r1, [r0]
+    81a8:	e12fff1e 	bx	lr
+
+000081ac <PUT16>:
+    81ac:	e1c010b0 	strh	r1, [r0]
+    81b0:	e12fff1e 	bx	lr
+
+000081b4 <PUT8>:
+    81b4:	e5c01000 	strb	r1, [r0]
+    81b8:	e12fff1e 	bx	lr
+
+000081bc <TurnOnLight>:
+    81bc:	e59f0028 	ldr	r0, [pc, #40]	; 81ec <irq+0x10>
+    81c0:	e3a01001 	mov	r1, #1	; 0x1
+    81c4:	e1a01901 	lsl	r1, r1, #18
+    81c8:	e5801004 	str	r1, [r0, #4]
+    81cc:	e3a01001 	mov	r1, #1	; 0x1
+    81d0:	e1a01801 	lsl	r1, r1, #16
+    81d4:	e5801028 	str	r1, [r0, #40]
+    81d8:	e1a0f00e 	mov	pc, lr
+
+000081dc <irq>:
+    81dc:	e92d5fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+    81e0:	eb000002 	bl	81f0 <irq_event_handler>
+    81e4:	e8bd5fff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
+    81e8:	e25ef004 	subs	pc, lr, #4	; 0x4
+    81ec:	20200000 	.word	0x20200000
+
+000081f0 <irq_event_handler>:
+    81f0:	e59f200c 	ldr	r2, [pc, #12]	; 8204 <irq_event_handler+0x14>
+    81f4:	e5923000 	ldr	r3, [r2]
+    81f8:	e2833001 	add	r3, r3, #1	; 0x1
+    81fc:	e5823000 	str	r3, [r2]
+    8200:	e12fff1e 	bx	lr
+    8204:	0000b000 	.word	0x0000b000
+
+00008208 <setup_framebuffer>:
+    8208:	e92d41f0 	push	{r4, r5, r6, r7, r8, lr}
+    820c:	e3a00b01 	mov	r0, #1024	; 0x400
+    8210:	e3a01c03 	mov	r1, #768	; 0x300
+    8214:	e3a02010 	mov	r2, #16	; 0x10
+    8218:	e1a06000 	mov	r6, r0
+    821c:	e1a07001 	mov	r7, r1
+    8220:	ebffff9e 	bl	80a0 <InitialiseFrameBuffer>
+    8224:	e2866001 	add	r6, r6, #1	; 0x1
+    8228:	e2877001 	add	r7, r7, #1	; 0x1
+    822c:	e3a05000 	mov	r5, #0	; 0x0
+    8230:	e3a04000 	mov	r4, #0	; 0x0
+    8234:	e1a00004 	mov	r0, r4
+    8238:	e1a01005 	mov	r1, r5
+    823c:	e2844001 	add	r4, r4, #1	; 0x1
+    8240:	e3a0201f 	mov	r2, #31	; 0x1f
+    8244:	ebffff86 	bl	8064 <WritePixel>
+    8248:	e1540006 	cmp	r4, r6
+    824c:	1afffff8 	bne	8234 <setup_framebuffer+0x2c>
+    8250:	e2855001 	add	r5, r5, #1	; 0x1
+    8254:	e1550007 	cmp	r5, r7
+    8258:	1afffff4 	bne	8230 <setup_framebuffer+0x28>
+    825c:	e8bd41f0 	pop	{r4, r5, r6, r7, r8, lr}
+    8260:	e12fff1e 	bx	lr
+
+00008264 <kernal_init>:
+    8264:	e92d4010 	push	{r4, lr}
+    8268:	ebffffe6 	bl	8208 <setup_framebuffer>
+    826c:	eafffffe 	b	826c <kernal_init+0x8>
