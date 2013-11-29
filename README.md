@@ -7,10 +7,18 @@ Current State - Hardware Discovery and planning
 
 So I'm currently still gathering as much information as I can on the Raspberry Pi hardware itself. It has been surprisingly difficult to locate registers and bootloader information since the official datasheet is closed but here is where I'm currently at.
 
-IRQ:
-The pi bootloader expects the interrupt vector table to appear at 0x80000, which also happens to be where the bootloader directs the PC after its complete.
+TTY: 
 
-MMU Table:
+Currently focused on overall architecture and getting a basic tty system up and running for debugging.
+
+IRQ:
+Hardware prototyping complete.
+
+MMU Table: todo.
+
+File System: todo.
+
+
 
 
 
